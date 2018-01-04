@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"  xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:jdbc="http://www.springframework.org/schema/jdbc"
+	xmlns:aop="http://www.springframework.org/schema/aop"
+    xmlns:tx="http://www.springframework.org/schema/tx"
+    xmlns:jaxws="http://cxf.apache.org/jaxws"
+	xsi:schemaLocation="
+       http://www.springframework.org/schema/beans
+       http://www.springframework.org/schema/beans/spring-beans.xsd
+       http://www.springframework.org/schema/context
+       http://www.springframework.org/schema/context/spring-context.xsd
+       http://www.springframework.org/schema/jdbc 
+       http://www.springframework.org/schema/jdbc/spring-jdbc.xsd
+       http://www.springframework.org/schema/tx
+       http://www.springframework.org/schema/tx/spring-tx.xsd
+       http://www.springframework.org/schema/aop
+       http://www.springframework.org/schema/aop/spring-aop.xsd
+       http://cxf.apache.org/jaxws
+       http://cxf.apache.org/schemas/jaxws.xsd">
+	<!-- 将数据源交个Spring来管理 -->
+	<context:property-placeholder location="classpath:dbConfig.properties" />
+	<bean id="dataSource1" class="org.apache.commons.dbcp.BasicDataSource">
+		<property name="driverClassName" value="${driverClassName}" />
+		<property name="url" value="${url1}" />
+		<property name="username" value="${jdbc.username}" />
+		<property name="password" value="${jdbc.password}" />
+	</bean>
+	
+	<!-- 路由数据源(用于指定程序使用哪个数据源) -->
+	<bean id="dataSource" class="com.atguigu.ws.util.MyDataSourceRouting">
+		<property name="defaultTargetDataSource" ref="dataSource1"></property>
+		<property name="targetDataSources">
+			<map>
+				<entry key="1" value-ref="dataSource1"></entry>
+				<entry key="2" value-ref="dataSource2"></entry>
+			</map>
+		</property>
+	</bean>
+	
+	<bean id="dataSource2" class="org.apache.commons.dbcp.BasicDataSource">
+		<property name="driverClassName" value="${driverClassName}" />
+		<property name="url" value="${url2}" />
+		<property name="username" value="${jdbc.username}" />
+		<property name="password" value="${jdbc.password}" />
+	</bean>
+	
+	<!-- 把mybatis交个Spring来管理 -->
+	<bean id="sqlSessionFactoryBean" class="org.mybatis.spring.SqlSessionFactoryBean">
+		<property name="dataSource" ref="dataSource" />
+		<property name="configLocation" value="classpath:mybatis-config.xml" />
+	</bean>
+
+	<bean class="org.mybatis.spring.mapper.MapperScannerConfigurer">
+		<property name="basePackage" value="com.atguigu.ws.mapper"></property>
+		<property name="sqlSessionFactoryBeanName" value="sqlSessionFactoryBean">
+		</property>
+	</bean>
+	
+	<bean id="testServiceImp" class="com.atguigu.ws.service.TestServiceImp" ></bean>
+	<bean id="myUserServiceImp" class="com.atguigu.ws.service.MyUserServiceImp" ></bean>
+	
+	<jaxws:endpoint address="/test" 
+		implementorClass="com.atguigu.ws.service.TestServiceInf">
+		<jaxws:implementor>
+			<ref bean="testServiceImp"/>
+		</jaxws:implementor>
+	</jaxws:endpoint>
+	
+	<jaxws:endpoint address="/myUserService" 
+		implementorClass="com.atguigu.ws.service.MyUserServiceInf">
+		<jaxws:implementor>
+			<ref bean="myUserServiceImp"/>
+		</jaxws:implementor>
+	</jaxws:endpoint>
+</beans>

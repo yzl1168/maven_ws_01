@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper SYSTEM "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.atguigu.ws.mapper.MyUserMapper">
+  <select id="select_t_mall_user" parameterType="com.atguigu.ws.bean.T_MALL_USER" resultType="com.atguigu.ws.bean.T_MALL_USER">
+  		select * from t_mall_user where yh_mch=#{yh_mch} and yh_mm=#{yh_mm}
+  </select>
+  
+  <insert id="insert_user" parameterType="com.atguigu.ws.bean.T_MALL_USER">
+  		insert into t_mall_user(yh_mch,yh_mm,yh_shjh,yh_yx)	
+  			values(#{yh_mch},#{yh_mm},#{yh_shjh},#{yh_yx})
+  </insert>
+  
+  <insert id="insert_address" parameterType="com.atguigu.ws.bean.T_MALL_ADDRESS">
+  		insert into t_mall_address(
+									yh_dz,
+									yh_id,
+									shjr,
+									lxfsh
+  		) values(#{yh_dz},#{yh_id},#{shjr},#{lxfsh})
+  </insert>
+  
+  <select id="select_t_mall_address" resultType="com.atguigu.ws.bean.T_MALL_ADDRESS">
+  		select * from t_mall_address where yh_id = #{user_id}
+  </select>
+</mapper>
